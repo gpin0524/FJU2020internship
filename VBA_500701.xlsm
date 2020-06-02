@@ -1,0 +1,199 @@
+
+Sub 建置BRM860S報表(ByVal 報表txtPath As String, ByVal 回傳檔Path As String, ByVal 營業日加一 As String)
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+
+'剖析
+    '報表txtPath = "C:\CRPADATA\U500701\temp\報表(BRM860S).txt"
+    Workbooks.OpenText Filename:=報表txtPath, _
+        Origin:=65001, StartRow:=1, DataType:=xlFixedWidth, FieldInfo:=Array( _
+        Array(0, 2), Array(12, 2), Array(28, 2), Array(40, 2), Array(52, 2), Array(58, 2), Array(78 _
+        , 2), Array(90, 2)), TrailingMinusNumbers:=True
+'處理
+    Dim sourceWB As Workbook
+    Set sourceWB = Workbooks("報表(BRM860S).txt")
+    Dim sourceSheets As Sheets
+    Set sourceSheets = sourceWB.Sheets
+    
+    Dim resultWB As Workbook
+    '回傳檔Path = "C:\CRPADATA\U500701\temp\temp.xls"
+    Set resultWB = Workbooks.Open(回傳檔Path)
+    Dim resultSheets As Sheets
+    Set resultSheets = resultWB.Sheets
+    
+    寫到第N筆 = 2
+    
+    '列數
+    RowCount = sourceSheets(1).UsedRange.Rows.Count
+    
+    For i = 1 To RowCount
+        到期日 = sourceSheets(1).Range("A" & i)
+        d = Format(Date, "yyyy/mm/dd")
+        If (到期日 <= 營業日加一) And (到期日 > d) And sourceSheets(1).Range("A" & i) Like "*/*" Then
+            '到期日
+            resultSheets(1).Range("A" & 寫到第N筆) = sourceSheets(1).Range("A" & i)
+            '帳戶
+            resultSheets(1).Range("B" & 寫到第N筆) = sourceSheets(1).Range("D" & i)
+            '戶名
+            resultSheets(1).Range("C" & 寫到第N筆) = sourceSheets(1).Range("F" & i)
+            'ID
+            resultSheets(1).Range("D" & 寫到第N筆) = sourceSheets(1).Range("G" & i)
+            
+            
+            寫到第N筆 = 寫到第N筆 + 1
+        End If
+        
+    Next i
+    
+    
+    sourceWB.Close SaveChanges:=False
+    resultWB.Save
+    resultWB.Close
+
+        
+        
+End Sub
+Sub 建置BRD018報表(ByVal 報表txtPath As String, ByVal 回傳檔Path As String, ByVal 營業日加一 As String)
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+
+'剖析
+    '報表txtPath = "C:\CRPADATA\U500701\temp\報表(BRD018).txt"
+    Workbooks.OpenText Filename:=報表txtPath, _
+        Origin:=65001, StartRow:=1, DataType:=xlFixedWidth, FieldInfo:=Array( _
+        Array(0, 2), Array(18, 2), Array(29, 2), Array(45, 2), Array(56, 2), Array(68, 2), Array(80 _
+        , 2), Array(98, 2), Array(101, 2), Array(112, 2), Array(114, 2), Array(125, 2)), _
+        TrailingMinusNumbers:=True
+        
+'處理
+    Dim sourceWB As Workbook
+    Set sourceWB = Workbooks("報表(BRD018).txt")
+    Dim sourceSheets As Sheets
+    Set sourceSheets = sourceWB.Sheets
+    
+    Dim resultWB As Workbook
+    '回傳檔Path = "C:\CRPADATA\U500701\temp\temp.xlsx"
+    Set resultWB = Workbooks.Open(回傳檔Path)
+    Dim resultSheets As Sheets
+    Set resultSheets = resultWB.Sheets
+    
+    寫到第N筆 = 2
+    
+    '列數
+    RowCount = sourceSheets(1).UsedRange.Rows.Count
+    
+    For i = 1 To RowCount
+        到期日 = sourceSheets(1).Range("F" & i)
+        d = Format(Date, "yyyy/mm/dd")
+        If (到期日 <= 營業日加一) And (到期日 > d) And sourceSheets(1).Range("E" & i) Like "*/*" Then
+            '到期日
+            resultSheets(2).Range("A" & 寫到第N筆) = sourceSheets(1).Range("F" & i)
+            '帳號
+            resultSheets(2).Range("B" & 寫到第N筆) = sourceSheets(1).Range("A" & i)
+            '戶名
+            resultSheets(2).Range("C" & 寫到第N筆) = sourceSheets(1).Range("B" & i)
+            'ID
+            resultSheets(2).Range("D" & 寫到第N筆) = sourceSheets(1).Range("C" & i)
+            
+            
+            寫到第N筆 = 寫到第N筆 + 1
+        End If
+        
+    Next i
+        
+    
+    sourceWB.Close SaveChanges:=False
+    resultWB.Save
+    resultWB.Close
+
+        
+End Sub
+
+Sub 寫入(ByVal sourceFilePath As String, ByVal sheetName As String, ByVal xy As String, ByVal result As String)
+
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+    Dim sourceWB As Workbook
+    Set sourceWB = Workbooks.Open(sourceFilePath)
+    Dim sourceSheets As Sheets
+    Set sourceSheets = sourceWB.Sheets
+
+
+    sourceSheets(sheetName).Range(xy).Value = result
+    
+    sourceWB.Save
+    sourceWB.Close
+    
+    Application.DisplayAlerts = True
+    Application.AskToUpdateLinks = True
+
+End Sub
+
+
+
+Sub 計算列數(ByVal sourceFilePath As String, ByVal sheetName As String, ByVal targetFilePath As String)
+    
+    
+    'source為Excel檔
+    'target為列數txt檔
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+    Dim sourceWB As Workbook
+    Set sourceWB = Workbooks.Open(sourceFilePath)
+    Dim sourceSheets As Sheets
+    Set sourceSheets = sourceWB.Sheets
+    
+    RowCount = (sourceSheets(sheetName).UsedRange.Rows.Count - 1)
+    
+    
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Dim oFile As Object
+    Set oFile = fso.CreateTextFile(targetFilePath)
+    oFile.WriteLine RowCount
+    oFile.Close
+    Set fso = Nothing
+    Set oFile = Nothing
+    
+    Set sourceSheets = Nothing
+    Set sourceWB = Nothing
+    Application.DisplayAlerts = True
+    Application.AskToUpdateLinks = True
+    
+    
+
+End Sub
+Sub 計算總資料量(ByVal sourceFilePath As String, ByVal targetFilePath As String)
+    
+    
+    'source為Excel檔
+    'target為列數txt檔
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+    Dim sourceWB As Workbook
+    Set sourceWB = Workbooks.Open(sourceFilePath)
+    Dim sourceSheets As Sheets
+    Set sourceSheets = sourceWB.Sheets
+    
+    TotalRowCount = (sourceSheets(1).UsedRange.Rows.Count - 1) + (sourceSheets(2).UsedRange.Rows.Count - 1)
+
+    
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Dim oFile As Object
+    Set oFile = fso.CreateTextFile(targetFilePath)
+    oFile.WriteLine TotalRowCount
+    oFile.Close
+    Set fso = Nothing
+    Set oFile = Nothing
+    
+    Set sourceSheets = Nothing
+    Set sourceWB = Nothing
+    Application.DisplayAlerts = True
+    Application.AskToUpdateLinks = True
+    
+    
+
+End Sub
+
+
