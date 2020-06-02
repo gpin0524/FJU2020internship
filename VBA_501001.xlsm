@@ -1,0 +1,78 @@
+Sub 資料處理(ByVal sourceFilePath As String)
+    
+    'sourceFilePath = "C:\Users\Z00045966\Desktop\temp0427\機器人調閱.xls"
+
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+    Dim sourceWB As Workbook
+    Set sourceWB = Workbooks.Open(sourceFilePath, , , , "822822")
+    Dim sourceSheets As Sheets
+    Set sourceSheets = sourceWB.Sheets
+    
+
+    Dim tempString As String
+    
+    
+    
+    
+    RowCount = (sourceSheets(1).UsedRange.Rows.Count - 1)
+    
+    For i = 2 To RowCount
+    
+        '帳號
+        If Range("C" & i) <> "" Then
+            tempString = Range("C" & i)
+            '消空格
+            tempString = Replace(tempString, " ", "")
+            '補0
+            Range("C" & i) = Replace(Space(16 - Len(tempString)), " ", "0") & tempString
+            
+        End If
+        
+        
+        
+        '日期
+        If Range("D" & i) <> "" Then
+            dateTemp = Split(Range("D" & i), "~")
+            '有~
+            If UBound(dateTemp) = 1 Then
+                dateFrom = dateTemp(0)
+                dateTo = dateTemp(1)
+                'dateFrom 為100年後
+                If Len(dateFrom) = 7 Then
+                    dateFrom = Mid(dateFrom, 1, 3) + 1911 & "/" & Mid(dateFrom, 4, 2) & "/" & Mid(dateFrom, 6, 2)
+                'dateFrom 為100年前
+                ElseIf Len(dateFrom) = 6 Then
+                    dateFrom = Mid(dateFrom, 1, 2) + 1911 & "/" & Mid(dateFrom, 3, 2) & "/" & Mid(dateFrom, 5, 2)
+                End If
+                
+                'dateTo 為100年後
+                If Len(dateTo) = 7 Then
+                    dateTo = Mid(dateTo, 1, 3) + 1911 & "/" & Mid(dateTo, 4, 2) & "/" & Mid(dateTo, 6, 2)
+                'dateTo 為100年前
+                ElseIf Len(dateTo) = 6 Then
+                    dateTo = Mid(dateTo, 1, 2) + 1911 & "/" & Mid(dateTo, 3, 2) & "/" & Mid(dateTo, 5, 2)
+                End If
+                
+                result_d = dateFrom & "~" & dateTo
+            '沒有~
+            ElseIf UBound(dateTemp) = 0 Then
+                dateFrom = dateTemp(0)
+                '100年後
+                If Len(dateFrom) = 7 Then
+                    dateFrom = Mid(dateFrom, 1, 3) + 1911 & "/" & Mid(dateFrom, 4, 2) & "/" & Mid(dateFrom, 6, 2)
+                '100年前
+                ElseIf Len(dateFrom) = 6 Then
+                    dateFrom = Mid(dateFrom, 1, 2) + 1911 & "/" & Mid(dateFrom, 3, 2) & "/" & Mid(dateFrom, 5, 2)
+                End If
+                
+                 result_d = dateFrom
+            End If
+            
+            Range("D" & i) = result_d
+
+        End If
+        
+    Next i
+    
+End Sub
