@@ -47,6 +47,12 @@ $(".search_box_btn").eq(0).find('button').eq(5).is('[disabled=disabled]')
 
 //501001-->
 
+//在父窗口獲取Iframe元素
+//$("#iframe的ID").contents().find("#iframe中的控件ID")
+$(".autoHeight").contents().find("#form1 table").eq(0).find("tbody tr td table tbody tr").eq(2).find("td").eq(2).attr("innerText")
+//在Iframe獲取父窗口元素
+//$('#父窗口中的元素ID', parent.document).click(); 
+
 //-外來文
 //備註
 $("#query_table").find("tbody tr").eq(i).find("td").eq(5).html()
@@ -55,7 +61,7 @@ $("#query_table").find("tbody tr").eq(1).find("td a")[0].click()
 //點選附件 機器人調閱
 $("#divUploadList").find("tbody tr td").eq(0).find("a")[0]
 
--PCMS
+//-PCMS
 //點開帳務查詢
 $("#ulBI01").attr("style", "display: block;");
 //點歷史交易查詢
@@ -72,7 +78,6 @@ for(i = 0; i < count; i++){
     $("#list1 option").eq(0).attr("selected", true)
     moveOption(document.myform.list1, document.myform.list2)
 }
-
 
 
 
