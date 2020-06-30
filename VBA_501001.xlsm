@@ -1,6 +1,194 @@
-Sub 資料處理(ByVal sourceFilePath As String)
+
+Sub 判斷回寫(ByVal 完成檔Path As String, ByVal 判斷金額 As String, ByVal ID As String)
+
+
+'剖析
+    結果txtPath = "C:\CRPADATA\U501001\temp\結果.txt"
+    Workbooks.OpenText Filename:=結果txtPath, Origin:= _
+        65001, StartRow:=1, DataType:=xlDelimited, TextQualifier:=xlDoubleQuote, _
+        ConsecutiveDelimiter:=False, Tab:=False, Semicolon:=False, Comma:=False _
+        , Space:=False, Other:=True, OtherChar:="~", FieldInfo:=Array(Array(1, 2 _
+        ), Array(2, 2), Array(3, 2), Array(4, 2), Array(5, 2), Array(6, 2), Array(7, 2), Array(8, 2), _
+        Array(9, 2), Array(10, 2)), TrailingMinusNumbers:=True
+    Range("A1:A9").Select
+    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, _
+        TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
+        Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        :="：", FieldInfo:=Array(Array(1, 2), Array(2, 2)), TrailingMinusNumbers:=True
+        
+'宣告
+    '搜索結果檔
+    Dim targetWB As Workbook
+    Set targetWB = Workbooks("結果.txt")
+    Dim targetSheets As Sheets
+    Set targetSheets = targetWB.Sheets
+
+    '完成檔
+    Dim resultWB As Workbook
+    '完成檔Path = "C:\CRPADATA\U501001\temp\完成檔.xls"
+    Set resultWB = Workbooks.Open(完成檔Path)
+    Dim resultSheets As Sheets
+    Set resultSheets = resultWB.Sheets
+'處理
     
-    'sourceFilePath = "C:\Users\Z00045966\Desktop\temp0427\機器人調閱.xls"
+
+    '判斷帳號 戶名 幣別是否相同
+    lastRow_result = resultSheets(1).Cells(resultSheets(1).Rows.Count, 1).End(xlUp).Row
+    
+    帳號 = targetSheets(1).Range("b2")
+    戶名 = targetSheets(1).Range("b5")
+    幣別 = targetSheets(1).Range("b8")
+    'ID = "00000000"
+    
+    If lastRow_result > 6 Then
+     '有上一筆資料，進行判斷
+     
+        
+        
+        '上一筆
+        last幣別 = resultSheets(1).Range("b" & lastRow_result - resultSheets(1).Range("a" & lastRow_result) - 1)
+        last帳號 = resultSheets(1).Range("b" & lastRow_result - resultSheets(1).Range("a" & lastRow_result) - 2)
+        last戶名 = resultSheets(1).Range("b" & lastRow_result - resultSheets(1).Range("a" & lastRow_result) - 4)
+        
+        
+        
+        If (帳號 = last帳號) And (戶名 = last戶名) And (幣別 = last幣別) Then
+            序號 = resultSheets(1).Range("a" & lastRow_result)
+        Else
+            序號 = 0
+            '貼上表頭
+            resultSheets(2).Select
+            Range("A1:P6").Select
+            Selection.Copy
+            resultSheets(1).Select
+            Range("A" & lastRow_result + 2).Select
+            resultSheets(1).Paste
+            
+            lastRow_result = resultSheets(1).Cells(resultSheets(1).Rows.Count, 1).End(xlUp).Row
+            '輸入表頭資料
+            resultSheets(1).Range("B" & lastRow_result - 4) = 戶名
+            resultSheets(1).Range("B" & lastRow_result - 3) = ID
+            resultSheets(1).Range("B" & lastRow_result - 2) = 帳號
+            resultSheets(1).Range("B" & lastRow_result - 1) = 幣別
+            
+        End If
+        
+    
+    
+    End If
+    
+    '搜索結果筆數
+    RowCount = targetSheets(1).UsedRange.Rows.Count
+    
+    '判斷金額 = ">=1000.15"
+    
+    
+    
+    For i = 11 To RowCount
+        支出 = Replace(targetSheets(1).Range("i" & i), ",", "")
+        存入 = Replace(targetSheets(1).Range("j" & i), ",", "")
+        
+        
+        If 判斷金額 Like "*>=*" Then
+            判斷金額 = Replace(判斷金額, ">=", "")
+            If 支出 >= 判斷金額 Or 存入 >= 判斷金額 Then
+                序號 = 序號 + 1
+                
+                '回寫在完成檔最後一筆
+                lastRow = resultSheets(1).Cells(resultSheets(1).Rows.Count, 1).End(xlUp).Row + 1
+
+                
+                '序號
+                If resultSheets(1).Range("a" & lastRow - 1) = "序號" Then
+                    resultSheets(1).Range("a" & lastRow) = 1
+                Else
+                    resultSheets(1).Range("a" & lastRow) = resultSheets(1).Range("a" & lastRow - 1) + 1
+                End If
+                '交易日期
+                resultSheets(1).Range("b" & lastRow) = targetSheets(1).Range("b" & i)
+                '交易時間
+                resultSheets(1).Range("c" & lastRow) = targetSheets(1).Range("e" & i)
+                '交易分行
+                resultSheets(1).Range("d" & lastRow) = targetSheets(1).Range("f" & i)
+                '交易櫃員
+                resultSheets(1).Range("e" & lastRow) = targetSheets(1).Range("g" & i)
+                '摘要
+                resultSheets(1).Range("f" & lastRow) = targetSheets(1).Range("h" & i)
+                '支出
+                resultSheets(1).Range("g" & lastRow) = targetSheets(1).Range("i" & i)
+                '存入
+                resultSheets(1).Range("h" & lastRow) = targetSheets(1).Range("j" & i)
+                '餘額
+                resultSheets(1).Range("i" & lastRow) = targetSheets(1).Range("k" & i)
+                '轉出入帳號
+                resultSheets(1).Range("j" & lastRow) = targetSheets(1).Range("m" & i)
+                '金資序號
+                resultSheets(1).Range("k" & lastRow) = targetSheets(1).Range("n" & i)
+                '票號
+                resultSheets(1).Range("l" & lastRow) = targetSheets(1).Range("o" & i)
+                
+                
+                
+                
+                
+            End If
+        
+        Else
+        
+            If 支出 = 判斷金額 Or 存入 = 判斷金額 Then
+                序號 = 序號 + 1
+                
+                '回寫在完成檔最後一筆
+                lastRow = resultSheets(1).Cells(resultSheets(1).Rows.Count, 1).End(xlUp).Row + 1
+                
+                '序號
+                If resultSheets(1).Range("a" & lastRow - 1) = "序號" Then
+                    resultSheets(1).Range("a" & lastRow) = 1
+                Else
+                    resultSheets(1).Range("a" & lastRow) = resultSheets(1).Range("a" & lastRow - 1) + 1
+                End If
+                '交易日期
+                resultSheets(1).Range("b" & lastRow) = targetSheets(1).Range("b" & i)
+                '交易時間
+                resultSheets(1).Range("c" & lastRow) = targetSheets(1).Range("e" & i)
+                '交易分行
+                resultSheets(1).Range("d" & lastRow) = targetSheets(1).Range("f" & i)
+                '交易櫃員
+                resultSheets(1).Range("e" & lastRow) = targetSheets(1).Range("g" & i)
+                '摘要
+                resultSheets(1).Range("f" & lastRow) = targetSheets(1).Range("h" & i)
+                '支出
+                resultSheets(1).Range("g" & lastRow) = targetSheets(1).Range("i" & i)
+                '存入
+                resultSheets(1).Range("h" & lastRow) = targetSheets(1).Range("j" & i)
+                '餘額
+                resultSheets(1).Range("i" & lastRow) = targetSheets(1).Range("k" & i)
+                '轉出入帳號
+                resultSheets(1).Range("j" & lastRow) = targetSheets(1).Range("m" & i)
+                '金資序號
+                resultSheets(1).Range("k" & lastRow) = targetSheets(1).Range("n" & i)
+                '票號
+                resultSheets(1).Range("l" & lastRow) = targetSheets(1).Range("o" & i)
+                
+                
+            End If
+            
+        
+        End If
+        
+        
+        
+    Next i
+    
+    targetWB.Close SaveChanges:=False
+    resultWB.Save
+    resultWB.Close
+End Sub
+
+Sub 資料處理()
+    'ByVal sourceFilePath As String
+    
+    sourceFilePath = "C:\CRPADATA\U501001\temp\機器人調閱.xls"
 
     Application.DisplayAlerts = False
     Application.AskToUpdateLinks = False
@@ -28,6 +216,7 @@ Sub 資料處理(ByVal sourceFilePath As String)
             Range("C" & i) = Replace(Space(16 - Len(tempString)), " ", "0") & tempString
             
         End If
+        
         
         
         
@@ -75,4 +264,42 @@ Sub 資料處理(ByVal sourceFilePath As String)
         
     Next i
     
+    
+    sourceWB.Save
+    sourceWB.Close
 End Sub
+
+Sub 計算列數(ByVal sourceFilePath As String, ByVal password As String, ByVal targetFilePath As String)
+    
+    
+    'source為Excel檔
+    'target為列數txt檔
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+    Dim sourceWB As Workbook
+    Set sourceWB = Workbooks.Open(sourceFilePath, , , , password)
+    Dim sourceSheets As Sheets
+    Set sourceSheets = sourceWB.Sheets
+    
+    RowCount = (sourceSheets(1).Cells(sourceSheets(1).Rows.Count, 1).End(xlUp).Row - 1)
+ 
+    
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Dim oFile As Object
+    Set oFile = fso.CreateTextFile(targetFilePath)
+    oFile.WriteLine RowCount
+    oFile.Close
+    Set fso = Nothing
+    Set oFile = Nothing
+    
+    Set sourceSheets = Nothing
+    Set sourceWB = Nothing
+    Application.DisplayAlerts = True
+    Application.AskToUpdateLinks = True
+    
+    
+
+End Sub
+
+
