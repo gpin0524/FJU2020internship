@@ -1,0 +1,1 @@
+$ {get-content 1.txt -encoding utf8 | set-content 2.txt -encoding unicode}
