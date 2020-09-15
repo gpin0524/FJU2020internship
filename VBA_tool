@@ -1,0 +1,22 @@
+Sub 寫入(ByVal sourceFilePath As String, ByVal 報表名稱 As String, ByVal 分行代號 As String, ByVal 處理結果 As String)
+
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+    Dim sourceWB As Workbook
+    Set sourceWB = Workbooks.Open(sourceFilePath)
+    Dim sourceSheets As Sheets
+    Set sourceSheets = sourceWB.Sheets
+
+    RowCount = sourceSheets(1).Cells(sourceSheets(1).Rows.Count, 1).End(xlUp).Row + 1
+
+    sourceSheets(1).Range("A" & RowCount).Value = 報表名稱
+    sourceSheets(1).Range("B" & RowCount).Value = 分行代號
+    sourceSheets(1).Range("C" & RowCount).Value = 處理結果
+    
+    sourceWB.Save
+    sourceWB.Close
+    
+    Application.DisplayAlerts = True
+    Application.AskToUpdateLinks = True
+
+End Sub
