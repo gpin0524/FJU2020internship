@@ -1,3 +1,37 @@
+Sub 巨集1()
+'
+' 巨集1 巨集
+'
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+    Dim sourceWB As Workbook
+    Set sourceWB = Workbooks.Open("C:\CRPADATA\U520402\分行資料.xlsx")
+    Dim sourceSheets As Sheets
+    Set sourceSheets = sourceWB.Sheets
+    
+    
+    Dim list As String
+    
+    For i = 2 To 153
+        a = Range("c" & i)
+        b = Mid(a, 1, 5)
+        
+        list = list & ", " & b & "@ctbcbank.com"
+    Next i
+    
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Dim oFile As Object
+    Set oFile = fso.CreateTextFile("C:\Users\z00045966\Desktop\分行群組.txt")
+    oFile.WriteLine list
+    oFile.Close
+    Set fso = Nothing
+    Set oFile = Nothing
+'
+End Sub
+
+
+
 Sub 寫入(ByVal sourceFilePath As String, ByVal 報表名稱 As String, ByVal 分行代號 As String, ByVal 處理結果 As String)
 
     Application.DisplayAlerts = False
